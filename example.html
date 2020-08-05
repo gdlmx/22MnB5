@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leaflet DeepZoom Demo</title>
+    <link rel="stylesheet" href="leaflet.css" />
+    <style type="text/css">
+        html, body, #image2d {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="image2d"></div>
+    <script type="text/javascript" src="leaflet.js"></script>
+    <script type="text/javascript" src="../leaflet-deepzoom.js"></script>  
+    <script type="text/javascript">
+
+        var map = L.map('image2d').setView(new L.LatLng(0,0), 0);
+
+        var dzLayer = L.tileLayer.deepzoom('DeepZoomImage/22mnb5_420c_12s_reg_sharp_100_eq_files/', { 
+            width: 5171, 
+            height: 4620
+        }).addTo(map);
+        var px2latlng = pts=>pts.map(x=> (map.unproject(x, dzLayer.options.maxNativeZoom)) );
+        var PolyLinePx = [[2947 , 2716], [3209,2705]];
+        var PolyLinePxLatLng = px2latlng(PolyLinePx) ;
+        // PolyLinePx.forEach(x=>PolyLinePxLatLng.push(map.unproject(x, dzLayer.options.maxNativeZoom)));
+
+        var TwBd = L.polyline(PolyLinePxLatLng,{color:'red'});
+        TwBd.addTo(map);
+
+        var KAM_bnd = [[-376 ,	360.],[6402., 4923.]];
+        var KAM_img_url = 'KAM_reg.jpg';
+        var KAMlayer = L.imageOverlay(KAM_img_url, px2latlng(KAM_bnd),{'opacity':0.8});KAMlayer.addTo(map);
+
+
+        var baseMaps = {
+            "BSE": dzLayer 
+        };
+
+        var overlayMaps = {
+            "Twin PAGB": TwBd,
+            'KAM': KAMlayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        var mapBnd = dzLayer.options.bounds;
+		map.fitBounds(px2latlng([[-377, 0. ],[6400 , 4921 ]]));
+
+    </script>
+</body>
+</html>
